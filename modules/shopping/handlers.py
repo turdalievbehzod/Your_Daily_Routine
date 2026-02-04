@@ -1,4 +1,4 @@
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 
 from modules.menu.keyboards import main_menu
@@ -8,7 +8,7 @@ from modules.shopping.services import add_item
 router = Router()
 
 
-@router.message(lambda m: m.text == "🛒 Покупки")
+@router.message(F.text == "🛒 Покупки")
 async def shopping_start(message: types.Message, state: FSMContext):
     await message.answer("Что нужно купить?")
     await state.set_state(ShoppingStates.item)

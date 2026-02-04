@@ -1,11 +1,11 @@
-from aiogram import Router, types
+from aiogram import Router, types, F
 
 from modules.expenses.services import add_expense
 
 router = Router()
 
 
-@router.message(lambda m: m.text.startswith("💸"))
+@router.message(F.text.startswith("💸"))
 async def expense_handler(message: types.Message):
     try:
         _, amount, category = message.text.split()

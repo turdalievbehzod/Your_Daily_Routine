@@ -1,11 +1,13 @@
-from aiogram import Router, types
+from aiogram import Router, types, F
+from aiogram.filters import Command
+
 from modules.users.services import get_or_create_user
 from modules.menu.keyboards import main_menu
 
 router = Router()
 
 
-@router.message(commands=["start"])
+@router.message(Command("start"))
 async def start_handler(message: types.Message):
     get_or_create_user(
         user_id=message.from_user.id,
@@ -18,7 +20,8 @@ async def start_handler(message: types.Message):
         parse_mode="Markdown"
     )
 
-@router.message(commands=["menu"])
+
+@router.message(Command("menu"))
 async def menu_handler(message: types.Message):
     await message.answer(
         "🏠 Главное меню",

@@ -1,4 +1,4 @@
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 
 from modules.habits.states import HabitStates
@@ -8,7 +8,7 @@ from modules.menu.keyboards import main_menu
 router = Router()
 
 
-@router.message(lambda m: m.text == "🔁 Привычки")
+@router.message(F.text == "🔁 Привычки")
 async def habit_start(message: types.Message, state: FSMContext):
     await message.answer("Введите название привычки:")
     await state.set_state(HabitStates.name)
