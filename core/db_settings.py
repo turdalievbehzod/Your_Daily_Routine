@@ -1,4 +1,6 @@
-from typing import Optional, Union, Any
+from __future__ import annotations
+
+from typing import Any, Optional, Union
 
 import psycopg2
 from psycopg2.extras import DictCursor, DictRow
@@ -7,11 +9,9 @@ from core.config import DB_CONFIG
 
 
 class DatabaseManager:
-    """
-    Database manager class to execute all queries
-    """
+    """Context manager для работы с PostgreSQL."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.conn: Optional[psycopg2.extensions.connection] = None
         self.cursor: Optional[psycopg2.extensions.cursor] = None
 
@@ -20,44 +20,43 @@ class DatabaseManager:
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type:
-            self.conn.rollback()
-        else:
-            self.conn.commit()
-
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if self.conn:
-            self.conn.close()
+            if exc_type:
+                self.conn.rollback()
+            else:
+                self.conn.commit()
 
         if self.cursor:
             self.cursor.close()
+        if self.conn:
+            self.conn.close()
 
-    def execute(self, query: str, params: Union[tuple, dict, None] = None):
+    def execute(self, query: str, params: Union[tuple, dict, None] = None) -> None:
+        assert self.cursor is not None
         self.cursor.execute(query, params)
 
     def fetchone(self, query: str, params: Union[tuple, dict, None] = None) -> Optional[DictRow]:
+        assert self.cursor is not None
         self.cursor.execute(query, params)
         return self.cursor.fetchone()
 
     def fetchall(self, query: str, params: Union[tuple, dict, None] = None) -> list[tuple[Any, ...]]:
+        assert self.cursor is not None
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
 
 
 def execute_query(
-        query: str,
-        params: Union[tuple, dict, None] = None,
-        fetch: Union[str, None] = None
+    query: str,
+    params: Union[tuple, dict, None] = None,
+    fetch: Union[str, None] = None,
 ) -> DictRow | None | list[tuple[Any, ...]] | bool:
-    try:
-        with DatabaseManager() as db:
-            if fetch == "one":
-                return db.fetchone(query=query, params=params)
-            elif fetch == "all":
-                return db.fetchall(query=query, params=params)
-            else:
-                db.execute(query=query, params=params)
-                return True
-    except psycopg2.Error as e:
-        print(e)
-        return None
+    with DatabaseManager() as db:
+        if fetch == "one":
+            return db.fetchone(query=query, params=params)
+        if fetch == "all":
+            return db.fetchall(query=query, params=params)
+
+        db.execute(query=query, params=params)
+        return True
