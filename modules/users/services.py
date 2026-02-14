@@ -13,3 +13,8 @@ def get_or_create_user(user_id: int, username: str | None):
             "INSERT INTO users (id, username) VALUES (%s, %s)",
             (user_id, username)
         )
+
+
+def ensure_user_exists(user_id: int, username: str | None) -> None:
+    """Гарантирует наличие пользователя в БД, даже если он не нажимал /start."""
+    get_or_create_user(user_id=user_id, username=username)
