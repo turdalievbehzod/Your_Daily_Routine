@@ -6,7 +6,6 @@ from modules.menu.keyboards import main_menu
 from modules.tasks.keyboards import categories_keyboard
 from modules.tasks.services import add_note, create_category, delete_note, list_categories, list_notes
 from modules.tasks.states import NoteStates
-from modules.users.services import ensure_user_exists
 
 router = Router()
 
@@ -41,7 +40,6 @@ def _render_notes(rows: list[tuple]) -> str:
 @router.callback_query(F.data == "notes:open")
 async def notes_open(event: types.Message | types.CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    ensure_user_exists(event.from_user.id, event.from_user.username)
     rows = list_notes(event.from_user.id)
     text = "📝 Ваши заметки:\n\n" + _render_notes(rows)
     if isinstance(event, types.CallbackQuery):
@@ -90,7 +88,6 @@ async def notes_cancel(callback: types.CallbackQuery, state: FSMContext) -> None
 
 @router.message(NoteStates.new_category)
 async def notes_create_category(message: types.Message, state: FSMContext) -> None:
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     category_id = create_category(message.from_user.id, message.text.strip())
     await state.update_data(category_id=category_id)
     await message.answer("Введите текст заметки:")
@@ -118,7 +115,6 @@ async def notes_choose_category(message: types.Message, state: FSMContext) -> No
 
 @router.message(NoteStates.note_body)
 async def notes_save(message: types.Message, state: FSMContext) -> None:
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     data = await state.get_data()
     add_note(message.from_user.id, data.get("category_id"), message.text.strip())
     await state.clear()
@@ -138,7 +134,6 @@ async def notes_delete_finish(message: types.Message, state: FSMContext) -> None
         await message.answer("ID должен быть числом.")
         return
 
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     ok = delete_note(message.from_user.id, int(message.text))
     await state.clear()
     await message.answer("✅ Заметка удалена." if ok else "Заметка не найдена.", reply_markup=notes_keyboard())

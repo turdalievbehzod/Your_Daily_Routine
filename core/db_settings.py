@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from typing import Any, Optional, Union
 
 import psycopg2
@@ -55,15 +54,11 @@ def execute_query(
     params: Union[tuple, dict, None] = None,
     fetch: Union[str, None] = None,
 ) -> DictRow | None | list[tuple[Any, ...]] | bool:
-    try:
-        with DatabaseManager() as db:
-            if fetch == "one":
-                return db.fetchone(query=query, params=params)
-            if fetch == "all":
-                return db.fetchall(query=query, params=params)
+    with DatabaseManager() as db:
+        if fetch == "one":
+            return db.fetchone(query=query, params=params)
+        if fetch == "all":
+            return db.fetchall(query=query, params=params)
 
-            db.execute(query=query, params=params)
-            return True
-    except psycopg2.Error as exc:
-        logger.exception("Database query failed: %s", exc)
-        return None
+        db.execute(query=query, params=params)
+        return True

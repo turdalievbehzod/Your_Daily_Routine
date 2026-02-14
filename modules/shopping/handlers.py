@@ -4,7 +4,6 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from modules.shopping.services import add_item, delete_item, get_items
 from modules.shopping.states import ShoppingStates
-from modules.users.services import ensure_user_exists
 
 router = Router()
 
@@ -29,7 +28,6 @@ def _render_items(rows: list[tuple]) -> str:
 @router.callback_query(F.data == "shopping:open")
 async def open_shopping(event: types.Message | types.CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    ensure_user_exists(event.from_user.id, event.from_user.username)
     rows = get_items(event.from_user.id)
     text = "🛒 Ваша корзина:\n\n" + _render_items(rows)
     if isinstance(event, types.CallbackQuery):
@@ -48,7 +46,6 @@ async def start_add(callback: types.CallbackQuery, state: FSMContext) -> None:
 
 @router.message(ShoppingStates.add_item)
 async def finish_add(message: types.Message, state: FSMContext) -> None:
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     add_item(message.from_user.id, message.text.strip())
     await state.clear()
     await message.answer("✅ Добавлено в корзину.", reply_markup=shopping_keyboard())
@@ -66,7 +63,6 @@ async def finish_delete(message: types.Message, state: FSMContext) -> None:
     if not message.text.isdigit():
         await message.answer("ID должен быть числом.")
         return
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     ok = delete_item(message.from_user.id, int(message.text))
     await state.clear()
     await message.answer(

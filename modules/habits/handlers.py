@@ -6,7 +6,6 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from modules.habits.services import add_habit, delete_habit, get_habit, list_habits, update_habit
 from modules.habits.states import HabitStates
-from modules.users.services import ensure_user_exists
 
 router = Router()
 PAGE_SIZE = 6
@@ -58,7 +57,6 @@ async def noop(callback: types.CallbackQuery) -> None:
 @router.callback_query(F.data == "habits:open")
 async def habits_open(event: types.Message | types.CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    ensure_user_exists(event.from_user.id, event.from_user.username)
     rows = list_habits(event.from_user.id)
     text = "🔁 Ваши привычки:\n\n" + _render_habits(rows)
     if isinstance(event, types.CallbackQuery):
@@ -108,7 +106,6 @@ async def habits_add_hour(message: types.Message, state: FSMContext) -> None:
         await message.answer("Час должен быть числом от 0 до 23.")
         return
 
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     data = await state.get_data()
     add_habit(message.from_user.id, data["name"], data["month"], data["day"], int(message.text))
     await state.clear()

@@ -15,7 +15,6 @@ from modules.expenses.services import (
     get_total_for_current_year,
 )
 from modules.expenses.states import ExpenseStates
-from modules.users.services import ensure_user_exists
 
 router = Router()
 
@@ -39,7 +38,6 @@ def _format_expenses(rows: list[tuple], with_id: bool = False) -> str:
 @router.callback_query(F.data == "expenses:open")
 async def open_expenses(event: types.Message | types.CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    ensure_user_exists(event.from_user.id, event.from_user.username)
     user_id = event.from_user.id
     text = "💸 Расходы за текущий месяц:\n\n" + _format_expenses(get_month_expenses(user_id), with_id=True)
 
@@ -74,7 +72,6 @@ async def finish_add_expense(message: types.Message, state: FSMContext) -> None:
         await message.answer("Некорректная сумма. Пример: 1200.50")
         return
 
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     data = await state.get_data()
     add_expense(message.from_user.id, amount, data["category"])
     await state.clear()
@@ -99,7 +96,6 @@ async def delete_expense_by_id(message: types.Message, state: FSMContext) -> Non
         await message.answer("ID должен быть числом.")
         return
 
-    ensure_user_exists(message.from_user.id, message.from_user.username)
     deleted = delete_expense_last_month(message.from_user.id, int(message.text))
     await state.clear()
     await message.answer(
