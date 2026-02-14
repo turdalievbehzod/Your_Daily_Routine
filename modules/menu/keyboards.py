@@ -1,13 +1,13 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 
 def main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📋 Задачи")],
-            [KeyboardButton(text="💸 Расходы")],
+            [KeyboardButton(text="💸 Затраты")],
             [KeyboardButton(text="🔁 Привычки")],
-            [KeyboardButton(text="🛒 Покупки")],
+            [KeyboardButton(text="🛒 Шоппинг")],
+            [KeyboardButton(text="📝 Заметки")],
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
     )

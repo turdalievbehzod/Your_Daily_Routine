@@ -1,5 +1,6 @@
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.state import State, StatesGroup
 
 
 class ShoppingStates(StatesGroup):
-    item = State()
+    add_item = State()
+    delete_item = State()
