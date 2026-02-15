@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 import logging
+import sys
 from datetime import datetime
 from urllib import parse, request
 
@@ -27,9 +27,9 @@ class TelegramLogHandler(logging.Handler):
                 method="POST",
             )
             request.urlopen(req, timeout=5)
-        except Exception:
+        except Exception as exc:
             # Никогда не ломаем приложение из-за логирования
-            pass
+            sys.stderr.write(f"[TelegramLogHandler] failed to send log: {exc}\n")
 
 
 def setup_logging() -> logging.Logger:
